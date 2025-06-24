@@ -3,6 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertProductSchema, insertCategorySchema, insertCartItemSchema } from "@shared/schema";
+import { RecommendationEngine } from "./ai/recommendations";
+import { ChatbotService } from "./ai/chatbot";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -238,7 +240,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Calculate total
       const total = cartItems.reduce((sum, item) => {
-        return sum + (parseFloat(item.product.price) * item.quantity);
+        return sum + (parseFloat(item.product.price) * (item.quantity || 1));
       }, 0);
 
       // Create order
@@ -251,11 +253,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const orderItemsData = cartItems.map(item => ({
         productId: item.productId,
-        quantity: item.quantity,
+        quantity: item.quantity || 1,
         price: item.product.price,
         size: item.size,
         color: item.color,
-      }));
+      })) as any;
 
       const order = await storage.createOrder(orderData, orderItemsData);
       
@@ -291,6 +293,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching order:", error);
       res.status(500).json({ message: "Failed to fetch order" });
+    }
+  });
+
+  // AI/ML Routes
+  app.get('/api/recommendations', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const type = req.query.type || 'hybrid';
+      const productId = req.query.productId ? parseInt(req.query.productId) : undefined;
+      
+      let recommendations;
+      
+      if (type === 'similar' && productId) {
+        recommendations = await RecommendationEngine.getSimilarProducts(productId);
+      } else if (type === 'content') {
+        recommendations = await RecommendationEngine.getContentBasedRecommendations(userId);
+      } else if (type === 'collaborative') {
+        recommendations = await RecommendationEngine.getCollaborativeRecommendations(userId);
+      } else {
+        recommendations = await RecommendationEngine.getHybridRecommendations(userId);
+      }
+      
+      res.json(recommendations);
+    } catch (error) {
+      console.error("Error fetching recommendations:", error);
+      res.status(500).json({ message: "Failed to fetch recommendations" });
+    }
+  });
+
+  app.post('/api/chat', async (req, res) => {
+    try {
+      const { message } = req.body;
+      const userId = (req.user as any)?.claims?.sub;
+      
+      if (!message) {
+        return res.status(400).json({ message: "Message is required" });
+      }
+      
+      const response = await ChatbotService.generateResponse(message, userId);
+      res.json({ response });
+    } catch (error) {
+      console.error("Error in chatbot:", error);
+      res.status(500).json({ message: "Failed to get response" });
+    }
+  });
+
+  app.post('/api/chat/outfit-suggestion', async (req, res) => {
+    try {
+      const { occasion, gender, budget } = req.body;
+      
+      if (!occasion || !gender) {
+        return res.status(400).json({ message: "Occasion and gender are required" });
+      }
+      
+      const suggestion = await ChatbotService.generateOutfitSuggestion(occasion, gender, budget);
+      res.json({ suggestion });
+    } catch (error) {
+      console.error("Error generating outfit suggestion:", error);
+      res.status(500).json({ message: "Failed to generate outfit suggestion" });
     }
   });
 

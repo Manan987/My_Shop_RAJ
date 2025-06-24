@@ -7,12 +7,14 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import ProductForm from "@/components/admin/product-form";
+import SalesForecasting from "@/components/ai/sales-forecasting";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Package, Users, ShoppingCart, TrendingUp } from "lucide-react";
-import type { Product, User } from "@/types";
+import { Plus, Edit, Trash2, Package, Users, ShoppingCart, TrendingUp, BarChart3, Brain, Settings } from "lucide-react";
+import type { Product, User, Category } from "@/types";
 
 export default function Admin() {
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -135,190 +137,195 @@ export default function Admin() {
       <Header onCartToggle={() => setIsCartOpen(!isCartOpen)} />
       
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-raj-neutral-900">Admin Panel</h1>
-            <p className="text-gray-600">Manage your Raj Garments store</p>
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-4xl font-bold text-raj-neutral-900">Admin Dashboard</h1>
+            <Brain className="h-8 w-8 text-raj-primary" />
           </div>
-          <Dialog open={isProductFormOpen} onOpenChange={setIsProductFormOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={handleNewProduct} className="raj-primary hover:bg-blue-700 text-white">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Product
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingProduct ? "Edit Product" : "Add New Product"}
-                </DialogTitle>
-              </DialogHeader>
-              <ProductForm
-                product={editingProduct}
-                onSuccess={() => {
-                  setIsProductFormOpen(false);
-                  setEditingProduct(null);
-                }}
-              />
-            </DialogContent>
-          </Dialog>
+          <p className="text-raj-neutral-600 text-lg">Manage your store with AI-powered insights</p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card>
+        {/* Enhanced Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-8">
+          <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
             <CardContent className="p-6">
-              <div className="flex items-center">
-                <Package className="h-8 w-8 text-raj-primary" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Products</p>
-                  <p className="text-2xl font-bold">{stats.totalProducts}</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-blue-600 font-medium text-sm">Products</p>
+                  <p className="text-2xl font-bold text-blue-900">{stats.totalProducts}</p>
                 </div>
+                <Package className="h-8 w-8 text-blue-600" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200">
             <CardContent className="p-6">
-              <div className="flex items-center">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-green-600 font-medium text-sm">In Stock</p>
+                  <p className="text-2xl font-bold text-green-900">{stats.inStock}</p>
+                </div>
                 <TrendingUp className="h-8 w-8 text-green-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">In Stock</p>
-                  <p className="text-2xl font-bold">{stats.inStock}</p>
-                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200">
             <CardContent className="p-6">
-              <div className="flex items-center">
-                <ShoppingCart className="h-8 w-8 text-yellow-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Low Stock</p>
-                  <p className="text-2xl font-bold">{stats.lowStock}</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-orange-600 font-medium text-sm">Low Stock</p>
+                  <p className="text-2xl font-bold text-orange-900">{stats.lowStock}</p>
                 </div>
+                <ShoppingCart className="h-8 w-8 text-orange-600" />
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="bg-gradient-to-r from-red-50 to-red-100 border-red-200">
             <CardContent className="p-6">
-              <div className="flex items-center">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-red-600 font-medium text-sm">Out of Stock</p>
+                  <p className="text-2xl font-bold text-red-900">{stats.outOfStock}</p>
+                </div>
                 <Users className="h-8 w-8 text-red-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Out of Stock</p>
-                  <p className="text-2xl font-bold">{stats.outOfStock}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-indigo-50 to-indigo-100 border-indigo-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-indigo-600 font-medium text-sm">Revenue</p>
+                  <p className="text-2xl font-bold text-indigo-900">₹450K</p>
                 </div>
+                <BarChart3 className="h-8 w-8 text-indigo-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-pink-50 to-pink-100 border-pink-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-pink-600 font-medium text-sm">AI Features</p>
+                  <p className="text-2xl font-bold text-pink-900">5</p>
+                </div>
+                <Brain className="h-8 w-8 text-pink-600" />
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Products Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Products</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {productsLoading ? (
-              <div className="space-y-4">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="flex items-center space-x-4 p-4 border rounded animate-pulse">
-                    <div className="w-16 h-16 bg-gray-200 rounded"></div>
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-gray-200 rounded"></div>
-                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : products.length === 0 ? (
-              <div className="text-center py-8">
-                <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">No products found. Add your first product to get started.</p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4">Product</th>
-                      <th className="text-left py-3 px-4">Price</th>
-                      <th className="text-left py-3 px-4">Stock</th>
-                      <th className="text-left py-3 px-4">Status</th>
-                      <th className="text-left py-3 px-4">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {products.map((product) => (
-                      <tr key={product.id} className="border-b hover:bg-gray-50">
-                        <td className="py-4 px-4">
-                          <div className="flex items-center space-x-3">
-                            <img
-                              src={product.imageUrl || "https://via.placeholder.com/60"}
-                              alt={product.name}
-                              className="w-12 h-12 object-cover rounded"
-                            />
-                            <div>
-                              <p className="font-medium">{product.name}</p>
-                              <p className="text-sm text-gray-500">
-                                ID: {product.id}
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div>
-                            <p className="font-semibold">₹{product.price}</p>
-                            {product.originalPrice && (
-                              <p className="text-sm text-gray-500 line-through">
-                                ₹{product.originalPrice}
-                              </p>
+        <Tabs defaultValue="products" className="space-y-6">
+          <TabsList className="bg-white border border-raj-neutral-200 p-1">
+            <TabsTrigger value="products" className="data-[state=active]:raj-primary data-[state=active]:text-white">
+              Products
+            </TabsTrigger>
+            <TabsTrigger value="forecasting" className="data-[state=active]:raj-primary data-[state=active]:text-white">
+              <Brain className="h-4 w-4 mr-2" />
+              AI Forecasting
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="products">
+            <Card className="shadow-lg border-0">
+              <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-raj-primary to-raj-primary-dark text-white rounded-t-lg">
+                <CardTitle className="text-xl">Product Management</CardTitle>
+                <Button onClick={handleNewProduct} className="bg-white text-raj-primary hover:bg-raj-neutral-100">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Product
+                </Button>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {products.map((product) => (
+                    <div key={product.id} className="flex items-center justify-between p-4 border border-raj-neutral-200 rounded-xl hover:shadow-md transition-shadow bg-gradient-to-r from-white to-raj-neutral-50">
+                      <div className="flex items-center space-x-4">
+                        <img
+                          src={product.imageUrl || "https://images.unsplash.com/photo-1445205170230-053b83016050?w=100&h=100&fit=crop&crop=center"}
+                          alt={product.name}
+                          className="w-16 h-16 object-cover rounded-xl shadow-sm"
+                        />
+                        <div>
+                          <h3 className="font-semibold text-raj-neutral-900">{product.name}</h3>
+                          <p className="text-raj-primary font-bold text-lg">₹{parseFloat(product.price).toLocaleString()}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            {product.featured && (
+                              <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                                ⭐ Featured
+                              </Badge>
+                            )}
+                            {product.stock && product.stock < 10 && (
+                              <Badge variant="destructive" className="text-xs">
+                                Low Stock
+                              </Badge>
                             )}
                           </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <span className="font-medium">{product.stock || 0}</span>
-                        </td>
-                        <td className="py-4 px-4">
-                          {(product.stock || 0) === 0 ? (
-                            <Badge variant="destructive">Out of Stock</Badge>
-                          ) : (product.stock || 0) <= 5 ? (
-                            <Badge variant="secondary">Low Stock</Badge>
-                          ) : (
-                            <Badge variant="outline" className="text-green-600 border-green-600">
-                              In Stock
-                            </Badge>
-                          )}
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="flex space-x-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEditProduct(product)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDeleteProduct(product.id)}
-                              disabled={deleteProductMutation.isPending}
-                            >
-                              <Trash2 className="h-4 w-4 text-red-500" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditProduct(product)}
+                          className="hover:raj-primary hover:text-white transition-colors"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                          onClick={() => handleDeleteProduct(product.id)}
+                          disabled={deleteProductMutation.isPending}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="forecasting">
+            <SalesForecasting />
+          </TabsContent>
+        </Tabs>
+
+        {/* Product Form Modal */}
+        {isProductFormOpen && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-raj-neutral-900">
+                    {editingProduct ? "Edit Product" : "Add New Product"}
+                  </h2>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsProductFormOpen(false)}
+                    className="hover:bg-raj-neutral-100"
+                  >
+                    ✕
+                  </Button>
+                </div>
+                <ProductForm
+                  product={editingProduct}
+                  onSuccess={() => {
+                    setIsProductFormOpen(false);
+                    setEditingProduct(null);
+                  }}
+                />
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          </div>
+        )}
       </div>
 
       <Footer />

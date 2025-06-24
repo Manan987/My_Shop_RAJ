@@ -2,6 +2,150 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    /* Raj Garments Brand Colors */
+    --raj-primary: 220 100% 50%; /* Blue */
+    --raj-primary-dark: 220 100% 40%;
+    --raj-secondary: 280 100% 70%; /* Purple */
+    --raj-accent: 45 100% 60%; /* Gold */
+    --raj-neutral-50: 210 20% 98%;
+    --raj-neutral-100: 210 20% 95%;
+    --raj-neutral-200: 210 16% 88%;
+    --raj-neutral-300: 210 14% 78%;
+    --raj-neutral-400: 210 14% 65%;
+    --raj-neutral-500: 210 11% 53%;
+    --raj-neutral-600: 210 10% 43%;
+    --raj-neutral-700: 210 12% 35%;
+    --raj-neutral-800: 210 14% 25%;
+    --raj-neutral-900: 210 18% 15%;
+    
+    /* Shadcn Variables */
+    --background: 0 0% 100%;
+    --foreground: 210 18% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 210 18% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 18% 15%;
+    --primary: 220 100% 50%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 210 20% 95%;
+    --secondary-foreground: 210 12% 35%;
+    --muted: 210 20% 95%;
+    --muted-foreground: 210 11% 53%;
+    --accent: 210 20% 95%;
+    --accent-foreground: 210 12% 35%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 210 16% 88%;
+    --input: 210 16% 88%;
+    --ring: 220 100% 50%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 210 18% 15%;
+    --foreground: 210 20% 98%;
+    --card: 210 14% 25%;
+    --card-foreground: 210 20% 98%;
+    --popover: 210 14% 25%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 220 100% 50%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 210 12% 35%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 210 12% 35%;
+    --muted-foreground: 210 11% 53%;
+    --accent: 210 12% 35%;
+    --accent-foreground: 210 20% 98%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 210 12% 35%;
+    --input: 210 12% 35%;
+    --ring: 220 100% 50%;
+  }
+}
+
+@layer utilities {
+  .raj-primary {
+    background-color: hsl(var(--raj-primary));
+  }
+  
+  .raj-primary-dark {
+    background-color: hsl(var(--raj-primary-dark));
+  }
+  
+  .text-raj-primary {
+    color: hsl(var(--raj-primary));
+  }
+  
+  .text-raj-neutral-900 {
+    color: hsl(var(--raj-neutral-900));
+  }
+  
+  .text-raj-neutral-600 {
+    color: hsl(var(--raj-neutral-600));
+  }
+  
+  .border-raj-primary {
+    border-color: hsl(var(--raj-primary));
+  }
+  
+  .bg-raj-neutral-50 {
+    background-color: hsl(var(--raj-neutral-50));
+  }
+}
+
+/* Enhanced animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out;
+}
+
+/* Gradient backgrounds */
+.gradient-primary {
+  background: linear-gradient(135deg, hsl(var(--raj-primary)) 0%, hsl(var(--raj-secondary)) 100%);
+}
+
+.gradient-hero {
+  background: linear-gradient(135deg, hsl(var(--raj-primary)) 0%, hsl(var(--raj-primary-dark)) 50%, hsl(var(--raj-secondary)) 100%);
+}
+
+/* Shimmer animation for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 :root {
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(20, 14.3%, 4.1%);

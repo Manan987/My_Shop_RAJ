@@ -100,17 +100,21 @@ export class DatabaseStorage implements IStorage {
 
   // Product operations
   async getProducts(categoryId?: number, featured?: boolean): Promise<Product[]> {
-    let query = db.select().from(products);
+    let conditions = [];
     
     if (categoryId !== undefined) {
-      query = query.where(eq(products.categoryId, categoryId));
+      conditions.push(eq(products.categoryId, categoryId));
     }
     
     if (featured !== undefined) {
-      query = query.where(eq(products.featured, featured));
+      conditions.push(eq(products.featured, featured));
     }
     
-    return await query.orderBy(desc(products.createdAt));
+    if (conditions.length > 0) {
+      return await db.select().from(products).where(and(...conditions)).orderBy(desc(products.createdAt));
+    }
+    
+    return await db.select().from(products).orderBy(desc(products.createdAt));
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
@@ -168,8 +172,8 @@ export class DatabaseStorage implements IStorage {
         and(
           eq(cartItems.userId, cartItem.userId),
           eq(cartItems.productId, cartItem.productId),
-          eq(cartItems.size, cartItem.size || ''),
-          eq(cartItems.color, cartItem.color || '')
+          cartItem.size ? eq(cartItems.size, cartItem.size) : sql`${cartItems.size} IS NULL`,
+          cartItem.color ? eq(cartItems.color, cartItem.color) : sql`${cartItems.color} IS NULL`
         )
       );
 
@@ -177,7 +181,7 @@ export class DatabaseStorage implements IStorage {
       // Update quantity
       const [updatedItem] = await db
         .update(cartItems)
-        .set({ quantity: existingItem[0].quantity + (cartItem.quantity || 1) })
+        .set({ quantity: (existingItem[0].quantity || 0) + (cartItem.quantity || 1) })
         .where(eq(cartItems.id, existingItem[0].id))
         .returning();
       return updatedItem;
@@ -211,8 +215,12 @@ export class DatabaseStorage implements IStorage {
       const [newOrder] = await tx.insert(orders).values(order).returning();
       
       const orderItemsWithOrderId = items.map(item => ({
-        ...item,
         orderId: newOrder.id,
+        productId: item.productId,
+        quantity: item.quantity,
+        price: item.price,
+        size: item.size,
+        color: item.color,
       }));
       
       await tx.insert(orderItems).values(orderItemsWithOrderId);
