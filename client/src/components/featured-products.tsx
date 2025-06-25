@@ -1,15 +1,36 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import ProductCard from "./product-card";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { Product } from "@/types";
 
 export default function FeaturedProducts() {
-  const { data: products = [], isLoading } = useQuery<Product[]>({
-    queryKey: ["/api/products", "featured=true"],
+  const { data: products = [], isLoading, error } = useQuery<Product[]>({
+    queryKey: ["/api/products"],
+    retry: 3,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   const featuredProducts = products.filter(p => p.featured).slice(0, 4);
+
+  if (error) {
+    return (
+      <section className="py-16 bg-raj-neutral-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center py-12">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Unable to load products</h3>
+            <p className="text-gray-600 mb-4">There was an error loading the featured products.</p>
+            <Button onClick={() => window.location.reload()} variant="outline">
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-16 bg-raj-neutral-50">
@@ -38,7 +59,15 @@ export default function FeaturedProducts() {
           </div>
         ) : featuredProducts.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No featured products available.</p>
+            <div className="bg-white rounded-xl shadow-sm p-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No featured products yet</h3>
+              <p className="text-gray-600 mb-4">Check back soon for our latest featured items!</p>
+              <Link href="/products">
+                <Button className="raj-primary hover:bg-blue-700 text-white">
+                  Browse All Products
+                </Button>
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

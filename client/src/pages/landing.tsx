@@ -3,6 +3,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ShoppingBag, Truck, Shield, Star } from "lucide-react";
 
 export default function Landing() {
+  const handleLogin = async () => {
+    try {
+      const response = await fetch('/api/login');
+      const data = await response.json();
+      
+      if (data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+      } else {
+        window.location.href = '/';
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-raj-neutral-50">
       {/* Header */}
@@ -19,7 +34,7 @@ export default function Landing() {
               </div>
             </div>
             <Button 
-              onClick={() => window.location.href = '/api/login'}
+              onClick={handleLogin}
               className="raj-primary hover:bg-blue-700 text-white"
             >
               Sign In
@@ -40,7 +55,7 @@ export default function Landing() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
               size="lg"
-              onClick={() => window.location.href = '/api/login'}
+              onClick={handleLogin}
               className="raj-secondary hover:bg-yellow-500 text-white font-semibold px-8 py-3"
             >
               Start Shopping
